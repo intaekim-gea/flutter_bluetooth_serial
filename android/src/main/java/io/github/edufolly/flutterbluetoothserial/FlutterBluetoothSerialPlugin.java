@@ -90,6 +90,8 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                 }
 
                 final String action = intent.getAction();
+                if (action == null) return;
+
                 switch (action) {
                     case BluetoothAdapter.ACTION_STATE_CHANGED:
                         // Disconnect all connections
@@ -111,18 +113,24 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
         pairingRequestReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                switch (intent.getAction()) {
+                String action = intent.getAction();
+                if (action == null) return;
+
+                switch (action) {
                     case BluetoothDevice.ACTION_PAIRING_REQUEST:
                         final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                         final int pairingVariant = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, BluetoothDevice.ERROR);
+
+                        if (device == null) return;
                         Log.d(TAG, "Pairing request (variant " + pairingVariant + ") incoming from " + device.getAddress());
+
                         switch (pairingVariant) {
                             case BluetoothDevice.PAIRING_VARIANT_PIN:
                                 // Simplest method - 4 digit number
                             {
                                 final BroadcastReceiver.PendingResult broadcastResult = this.goAsync();
 
-                                Map<String, Object> arguments = new HashMap<String, Object>();
+                                Map<String, Object> arguments = new HashMap<>();
                                 arguments.put("address", device.getAddress());
                                 arguments.put("variant", pairingVariant);
 
@@ -138,7 +146,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                                                 device.setPin(passkey);
                                                 broadcastResult.abortBroadcast();
                                             } catch (Exception ex) {
-                                                Log.e(TAG, ex.getMessage());
+                                                Log.e(TAG, ex.getMessage() != null ? ex.getMessage() : "Unknown error");
                                                 ex.printStackTrace();
                                                 // @TODO , passing the error
                                                 //result.error("bond_error", "Setting passkey for pairing failed", exceptionToString(ex));
@@ -159,7 +167,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                                     }
 
                                     @Override
-                                    public void error(String code, String message, Object details) {
+                                    public void error(@NonNull String code, String message, Object details) {
                                         throw new UnsupportedOperationException();
                                     }
                                 });
@@ -193,7 +201,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                                                 final boolean confirm = (Boolean) handlerResult;
                                                 Log.d(TAG, "Trying to set pairing confirmation to " + confirm + " (key: " + pairingKey + ")");
                                                 // @WARN `BLUETOOTH_PRIVILEGED` permission required, but might be
-                                                // unavailable for thrid party apps on newer versions of Androids.
+                                                // unavailable for third party apps on newer versions of Androids.
                                                 device.setPairingConfirmation(confirm);
                                                 broadcastResult.abortBroadcast();
                                             } catch (Exception ex) {
@@ -273,6 +281,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                         final int deviceRSSI = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
 
                         Map<String, Object> discoveryResult = new HashMap<>();
+                        String name = device.getName();
                         discoveryResult.put("address", device.getAddress());
                         discoveryResult.put("name", device.getName());
                         discoveryResult.put("type", device.getType());
@@ -281,7 +290,9 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                         discoveryResult.put("bondState", device.getBondState());
                         discoveryResult.put("rssi", deviceRSSI);
 
-                        Log.d(TAG, "Discovered " + device.getAddress());
+                        if (name != null && name.contains("GE")) {
+                            Log.d(TAG, "Discovered " + device.getAddress());
+                        }
                         if (discoverySink != null) {
                             discoverySink.success(discoveryResult);
                         }
@@ -614,7 +625,7 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                         do {
                             Log.d(TAG, "Trying to obtain address using Settings Secure bank");
                             try {
-                                // Requires `LOCAL_MAC_ADDRESS` which could be unavailible for third party applications...
+                                // Requires `LOCAL_MAC_ADDRESS` which could be unavailable for third party applications...
                                 String value = android.provider.Settings.Secure.getString(activeContext.getContentResolver(), "bluetooth_address");
                                 if (value == null) {
                                     throw new NullPointerException("null returned, might be no permissions problem");
@@ -648,12 +659,12 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
                                     throw new NullPointerException();
                                 }
                                 address = value;
-                                Log.d(TAG, "Probably succed: " + address + " ✨ :F");
+                                Log.d(TAG, "Probably succeed: " + address + " ✨ :F");
                                 break;
                             } catch (Exception ex) {
                                 // Ignoring failure (since it isn't critical API for most applications)
                                 Log.d(TAG, "Obtaining address using reflection against internal Android code failed");
-                                //result.error("hidden_address", "obtaining address using reflection agains internal Android code failed", exceptionToString(ex));
+                                //result.error("hidden_address", "obtaining address using reflection against internal Android code failed", exceptionToString(ex));
                             }
 
                             Log.d(TAG, "Trying to look up address by network interfaces - might be invalid on some devices");
@@ -916,6 +927,17 @@ public class FlutterBluetoothSerialPlugin implements FlutterPlugin, ActivityAwar
 
                 case "isDiscovering":
                     result.success(bluetoothAdapter.isDiscovering());
+                    break;
+
+                case "initialize":
+                    // Disconnect all connections
+                    int size = connections.size();
+                    for (int i = 0; i < size; i++) {
+                        BluetoothConnection connection = connections.valueAt(i);
+                        connection.disconnect();
+                    }
+                    connections.clear();
+                    result.success(null);
                     break;
 
                 case "startDiscovery":

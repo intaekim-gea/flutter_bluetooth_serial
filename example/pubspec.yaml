@@ -14,13 +14,13 @@ dependencies:
 
   flutter_bluetooth_serial:
     path: ../
-
+  permission_handler: ^11.3.1
   scoped_model: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  flutter_lints: ^5.0.0
   integration_test:
     sdk: flutter
 

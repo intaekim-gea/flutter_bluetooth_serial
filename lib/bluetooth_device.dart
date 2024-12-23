@@ -66,6 +66,7 @@ class BluetoothDevice {
   ///
   /// In fact, only `address` is compared, since this is most important
   /// and unchangable information that identifies each device.
+  @override
   operator ==(Object other) {
     return other is BluetoothDevice && other.address == address;
   }

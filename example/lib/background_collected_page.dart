@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-import './BackgroundCollectingTask.dart';
-import './helpers/LineChart.dart';
-import './helpers/PaintStyle.dart';
+import 'background_collecting_task.dart';
+import 'helpers/line_chart.dart';
+import 'helpers/paint_style.dart';
 
 class BackgroundCollectedPage extends StatelessWidget {
+  const BackgroundCollectedPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final BackgroundCollectingTask task =
@@ -55,11 +57,7 @@ class BackgroundCollectedPage extends StatelessWidget {
         argumentsLabelsTimestamps.map((timestamp) {
       return LabelEntry(
         (timestamp.millisecondsSinceEpoch - argumentsShift).toDouble(),
-        (timestamp.hour <= 9 ? '0' : '') +
-            timestamp.hour.toString() +
-            ':' +
-            (timestamp.minute <= 9 ? '0' : '') +
-            timestamp.minute.toString(),
+        '${timestamp.hour <= 9 ? '0' : ''}${timestamp.hour}:${timestamp.minute <= 9 ? '0' : ''}${timestamp.minute}',
       );
     });
 

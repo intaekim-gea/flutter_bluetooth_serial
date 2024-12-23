@@ -3,15 +3,13 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class BluetoothDeviceListEntry extends ListTile {
   BluetoothDeviceListEntry({
+    super.key,
     required BluetoothDevice device,
     int? rssi,
-    GestureTapCallback? onTap,
-    GestureLongPressCallback? onLongPress,
-    bool enabled = true,
+    super.onTap,
+    super.onLongPress,
+    super.enabled,
   }) : super(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          enabled: enabled,
           leading:
               Icon(Icons.devices), // @TODO . !BluetoothClass! class aware icon
           title: Text(device.name ?? ""),
@@ -33,21 +31,19 @@ class BluetoothDeviceListEntry extends ListTile {
                         ),
                       ),
                     )
-                  : Container(width: 0, height: 0),
+                  : SizedBox.shrink(),
               device.isConnected
                   ? Icon(Icons.import_export)
-                  : Container(width: 0, height: 0),
-              device.isBonded
-                  ? Icon(Icons.link)
-                  : Container(width: 0, height: 0),
+                  : SizedBox.shrink(),
+              device.isBonded ? Icon(Icons.link) : SizedBox.shrink(),
             ],
           ),
         );
 
   static TextStyle _computeTextStyle(int rssi) {
-    /**/ if (rssi >= -35)
+    /**/ if (rssi >= -35) {
       return TextStyle(color: Colors.greenAccent[700]);
-    else if (rssi >= -45)
+    } else if (rssi >= -45) {
       return TextStyle(
         color: Color.lerp(
           Colors.greenAccent[700],
@@ -55,7 +51,7 @@ class BluetoothDeviceListEntry extends ListTile {
           -(rssi + 35) / 10,
         ),
       );
-    else if (rssi >= -55)
+    } else if (rssi >= -55) {
       return TextStyle(
         color: Color.lerp(
           Colors.lightGreen,
@@ -63,11 +59,11 @@ class BluetoothDeviceListEntry extends ListTile {
           -(rssi + 45) / 10,
         ),
       );
-    else if (rssi >= -65)
+    } else if (rssi >= -65) {
       return TextStyle(
         color: Color.lerp(Colors.lime[600], Colors.amber, -(rssi + 55) / 10),
       );
-    else if (rssi >= -75)
+    } else if (rssi >= -75) {
       return TextStyle(
         color: Color.lerp(
           Colors.amber,
@@ -75,7 +71,7 @@ class BluetoothDeviceListEntry extends ListTile {
           -(rssi + 65) / 10,
         ),
       );
-    else if (rssi >= -85)
+    } else if (rssi >= -85) {
       return TextStyle(
         color: Color.lerp(
           Colors.deepOrangeAccent,
@@ -83,8 +79,9 @@ class BluetoothDeviceListEntry extends ListTile {
           -(rssi + 75) / 10,
         ),
       );
-    else
+    } else {
       /*code symmetry*/
       return TextStyle(color: Colors.redAccent);
+    }
   }
 }

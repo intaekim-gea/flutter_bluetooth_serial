@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-import './MainPage.dart';
+import 'main_page.dart';
 
-void main() => runApp(new ExampleApplication());
+void main() => runApp(ExampleApplication());
 
 class ExampleApplication extends StatelessWidget {
+  const ExampleApplication({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(home: MainPage());

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -51,15 +53,15 @@ class _ChatPage extends State<ChatPage> {
     super.initState();
 
     BluetoothConnection.toAddress(widget.server.address)
-        .then((BluetoothConnection _connection) {
+        .then((BluetoothConnection connection) {
       print('Connected to the device');
-      connection = _connection;
+      connection = connection;
       setState(() {
         isConnecting = false;
         isDisconnecting = false;
       });
 
-      connection!.input!.listen(_onDataReceived).onDone(() {
+      connection.input!.listen(_onDataReceived).onDone(() {
         // Example: Detect which side closed the connection
         // There should be `isDisconnecting` flag to show are we are (locally)
         // in middle of disconnecting process, should be set before calling
@@ -71,7 +73,7 @@ class _ChatPage extends State<ChatPage> {
         } else {
           print('Disconnected remotely!');
         }
-        if (this.mounted) {
+        if (mounted) {
           setState(() {});
         }
       });
@@ -95,9 +97,9 @@ class _ChatPage extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Row> list = messages.map((_Message _message) {
+    final List<Row> list = messages.map((_Message message) {
       return Row(
-        mainAxisAlignment: _message.whom == clientID
+        mainAxisAlignment: message.whom == clientID
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
         children: <Widget>[
@@ -106,14 +108,13 @@ class _ChatPage extends State<ChatPage> {
             margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
             width: 222,
             decoration: BoxDecoration(
-              color:
-                  _message.whom == clientID ? Colors.blueAccent : Colors.grey,
+              color: message.whom == clientID ? Colors.blueAccent : Colors.grey,
               borderRadius: BorderRadius.circular(7),
             ),
             child: Text(
               (text) {
                 return text == '/shrug' ? '¯\\_(ツ)_/¯' : text;
-              }(_message.text.trim()),
+              }(message.text.trim()),
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -180,11 +181,11 @@ class _ChatPage extends State<ChatPage> {
   void _onDataReceived(Uint8List data) {
     // Allocate buffer for parsed data
     int backspacesCounter = 0;
-    data.forEach((int byte) {
+    for (var byte in data) {
       if (byte == 8 || byte == 127) {
         backspacesCounter++;
       }
-    });
+    }
     Uint8List buffer = Uint8List(data.length - backspacesCounter);
     int bufferIndex = buffer.length;
 
@@ -234,7 +235,7 @@ class _ChatPage extends State<ChatPage> {
     text = text.trim();
     textEditingController.clear();
 
-    if (text.length > 0) {
+    if (text.isNotEmpty) {
       try {
         connection!.output.add(Uint8List.fromList(utf8.encode('$text\r\n')));
         await connection!.output.allSent;

@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 part of './flutter_bluetooth_serial.dart';
 
 /// Enum-like class for all types of pairing variants.
@@ -30,6 +32,7 @@ class PairingVariant {
   }
   int toUnderlyingValue() => underlyingValue;
 
+  @override
   String toString() {
     switch (underlyingValue) {
       case 0:

@@ -1,3 +1,4 @@
+// ignore: dangling_library_doc_comments
 /// @name LineChart
 /// @version 0.0.5
 /// @description Simple line chart widget
@@ -8,7 +9,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import 'package:flutter_bluetooth_serial_example/helpers/PaintStyle.dart';
+import 'package:flutter_bluetooth_serial_example/helpers/paint_style.dart';
 
 class LabelEntry {
   final double value;
@@ -89,6 +90,7 @@ class LineChart extends StatelessWidget {
   final double additionalMinimalVerticalLablesInterval;
 
   LineChart({
+    super.key,
     required this.constraints,
     this.padding = const EdgeInsets.fromLTRB(32, 12, 20, 28),
     required this.arguments,
@@ -159,7 +161,7 @@ class LineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: this.constraints,
+      constraints: constraints,
       child: CustomPaint(
         painter: _LineChartPainter(
           padding: padding,
@@ -269,7 +271,7 @@ class _LineChartPainter extends CustomPainter {
     double additionalMinimalVerticalLablesInterval = 8,
     required this.seriesPointsPaints,
     required this.seriesLinesPaints,
-  }) : this.minimalHorizontalLabelsInterval =
+  }) : minimalHorizontalLabelsInterval =
             (horizontalLabelsTextStyle?.fontSize ?? 12) +
                 additionalMinimalHorizontalLabelsInterval {
     // Find max & min values of data to be show
@@ -583,15 +585,15 @@ class _LineChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_LineChartPainter old) =>
-      this.arguments != old.arguments ||
-          this.values != old.values ||
-          this.argumentsLabels != old.argumentsLabels ||
-          this.valuesLabels != old.valuesLabels ||
-          this.seriesPointsPaints != old.seriesPointsPaints ||
-          this.seriesLinesPaints != old.seriesLinesPaints ||
-          this.horizontalLabelsTextStyle != old.horizontalLabelsTextStyle ||
-          this.verticalLabelsTextStyle != old.verticalLabelsTextStyle ||
-          this.padding != old.padding //
+      arguments != old.arguments ||
+      values != old.values ||
+      argumentsLabels != old.argumentsLabels ||
+      valuesLabels != old.valuesLabels ||
+      seriesPointsPaints != old.seriesPointsPaints ||
+      seriesLinesPaints != old.seriesLinesPaints ||
+      horizontalLabelsTextStyle != old.horizontalLabelsTextStyle ||
+      verticalLabelsTextStyle != old.verticalLabelsTextStyle ||
+      padding != old.padding //
       ;
 
   // ..., 0.01, 0.02, 0.05, 0.1, [0.125], 0.2, [0.25], 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, ...

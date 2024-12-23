@@ -4,7 +4,7 @@ class FlutterBluetoothSerial {
   // Plugin
   static const String namespace = 'flutter_bluetooth_serial';
 
-  static FlutterBluetoothSerial _instance = FlutterBluetoothSerial._();
+  static final FlutterBluetoothSerial _instance = FlutterBluetoothSerial._();
 
   static FlutterBluetoothSerial get instance => _instance;
 
@@ -187,7 +187,7 @@ class FlutterBluetoothSerial {
   /// Note: It is necessary to return from handler within 10 seconds, since
   /// Android BroadcastReceiver can wait safely only up to that duration.
   void setPairingRequestHandler(
-    Future<dynamic> handler(BluetoothPairingRequest request)?,
+    Future<dynamic> Function(BluetoothPairingRequest request)? handler,
   ) {
     if (handler == null) {
       _pairingRequestHandler = null;
@@ -212,6 +212,10 @@ class FlutterBluetoothSerial {
   /// Describes is the dicovery process of Bluetooth devices running.
   Future<bool?> get isDiscovering async =>
       await _methodChannel.invokeMethod('isDiscovering');
+
+  Future<void> initialize() async {
+    await _methodChannel.invokeMethod('initialize');
+  }
 
   /// Starts discovery and provides stream of `BluetoothDiscoveryResult`s.
   Stream<BluetoothDiscoveryResult> startDiscovery() async* {
@@ -283,7 +287,7 @@ class FlutterBluetoothSerial {
   @Deprecated('Use `BluetoothConnection.output` with some decoding '
       '(such as `ascii.decode` for strings) instead')
   Future<void> write(String message) {
-    _defaultConnection!.output.add(utf8.encode(message) as Uint8List);
+    _defaultConnection!.output.add(utf8.encode(message));
     return _defaultConnection!.output.allSent;
   }
 

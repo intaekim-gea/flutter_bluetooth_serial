@@ -1,8 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:flutter_bluetooth_serial_example/BluetoothDeviceListEntry.dart';
+import 'package:flutter_bluetooth_serial_example/bluetooth_device_list_entry.dart';
 
 ///
 ///
@@ -54,10 +56,11 @@ class _DiscoveryPage extends State<DiscoveryPage> {
         final existingIndex = results.indexWhere(
           (element) => element.device.address == r.device.address,
         );
-        if (existingIndex >= 0)
+        if (existingIndex >= 0) {
           results[existingIndex] = r;
-        else
+        } else {
           results.add(r);
+        }
       });
     });
 
@@ -89,7 +92,7 @@ class _DiscoveryPage extends State<DiscoveryPage> {
           if (isDiscovering)
             FittedBox(
               child: Container(
-                margin:  const EdgeInsets.all(16.0),
+                margin: const EdgeInsets.all(16.0),
                 child: const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
@@ -143,6 +146,8 @@ class _DiscoveryPage extends State<DiscoveryPage> {
                   );
                 });
               } on Exception catch (ex) {
+                if (!context.mounted) return;
+
                 await showDialog(
                   context: context,
                   builder: (BuildContext context) {
